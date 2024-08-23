@@ -1,0 +1,34 @@
+## In windows serveres add singel or one more user with admin rights follow this script
+# List of server IPs or hostnames
+$servers = @("10.8.0.33", "10.8.0.35", "10.8.0.17", "10.8.0.37", "10.8.0.27", "10.8.0.29", "10.8.0.3", "10.8.0.4", "10.8.0.6", "10.8.0.7", "10.8.0.8", "10.8.0.9", "10.8.0.28", "10.8.0.26") # Add your servers here
+
+# Credentials for connecting to the servers
+$adminUser = "administrator" 
+$adminPassword = "huY5#2@17" | ConvertTo-SecureString -AsPlainText -Force
+$adminCredential = New-Object System.Management.Automation.PSCredential($adminUser, $adminPassword)
+
+# User details to create
+$newUser = "pramsheesh.k"
+$newPassword = "Amn#x@1524?" | ConvertTo-SecureString -AsPlainText -Force
+
+# Loop through each server and create the user
+foreach ($server in $servers) {
+    $session = New-PSSession -ComputerName $server -Credential $adminCredential
+    Invoke-Command -Session $session -ScriptBlock {
+        param($newUser, $newPassword)
+        
+        # Create the new user
+        New-LocalUser -Name $newUser -Password $newPassword -FullName "New User" -Description "User created via script"
+
+        # Add the new user to the Administrators group (optional)
+        Add-LocalGroupMember -Group "Administrators" -Member $newUser
+    } -ArgumentList $newUser, $newPassword
+
+    # Close the session
+    Remove-PSSession -Session $session
+}
+
+
+## 1st step - open powershell ISE with administratior --> run below cmd with private ip of the servers--> Set-Item wsman:\localhost\Client\TrustedHosts -Value "10.8.0.22,10.8.0.30,10.8.0.31" -Concatenate
+
+## 2nd step - run the script
